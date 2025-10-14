@@ -11,7 +11,7 @@ class CountBasedBigram:
         # TODO: Create a (vocab_size, vocab_size) tensor to store counts
         # Hint: Use torch.zeros
         # counts[i, j] = how many times token i is followed by token j
-        self.counts = None
+        self.counts = torch.ones(vocab_size, vocab_size)
     
     def train(self, data):
         """
@@ -24,8 +24,8 @@ class CountBasedBigram:
         #   Increment counts[current_token, next_token]
         # Hint: Use data[:-1] for current tokens, data[1:] for next tokens
         # Hint: You can use a for loop with zip, or vectorized operations
-        
-        pass
+        for int_1, int_2 in zip(data[:-1], data[1:]):
+            self.counts[int_1,int_2] += 1
     
     def get_probabilities(self):
         """
@@ -36,8 +36,10 @@ class CountBasedBigram:
         # P(next | current) = count(current, next) / sum(count(current, *))
         # Hint: Use self.counts.sum(dim=1, keepdim=True) to get row sums
         # Hint: Add small epsilon to avoid division by zero
+        probablilities = torch.zeros(vocab_size, vocab_size)
+        self.counts.sum(dim=1, keepdim=True)
+        return 
         
-        pass
     
     def generate(self, idx, max_new_tokens):
         """
@@ -95,31 +97,41 @@ if __name__ == "__main__":
         text = f.read()
     
     #Tokenize data
-    chars =
-    #vocab_size =
-    #stoi = 
-    #itos =
-    #data = 
+    chars = sorted(set(text))
+    vocab_size = len(chars)
+    stoi = {}
+    itos = {}
+    for i, char in enumerate(chars):
+        stoi[char] = i
+        itos[i] = char
+
+    data = []
+    for char in text:
+        data += [stoi[char]]
     
     # Split data
-    #n = 
-    #train_data = 
-    #val_data = 
-    #
-    #print(f"Vocab size: {vocab_size}")
-    #print(f"Training on {len(train_data)} tokens")
-    
+    n = 0.8
+    index = int(len(data)*0.8)
+    train_data = data[:index]
+    val_data = data[index:]
+    """
+    print(f"Vocab size: {vocab_size}")
+    print(f"Training on {len(train_data)} tokens")
+    print(f"Testing on {len(val_data)} tokens")
+    print(f"Train/ Test ratio: {len(train_data)/(len(train_data)+len(val_data))}")
+    """
+
     # TODO: Create model
-    #model = CountBasedBigram(vocab_size)
+    model = CountBasedBigram(vocab_size)
     
     # TODO: Train (just count!)
-    #print("\nCounting bigrams...")
-    #model.train(train_data)
-    #print("Done!")
+    print("\nCounting bigrams...")
+    model.train(train_data)
+    print("Done!")
     
     # TODO: Calculate losses
-    #train_loss = model.calculate_loss(train_data[:10000])
-    #val_loss = model.calculate_loss(val_data[:10000])
+    train_loss = model.calculate_loss(train_data[:10000])
+    val_loss = model.calculate_loss(val_data[:10000])
     #
     #print(f"\nTrain loss: {train_loss:.4f}")
     #print(f"Val loss: {val_loss:.4f}")
@@ -129,3 +141,8 @@ if __name__ == "__main__":
     #context = torch.zeros((1, 1), dtype=torch.long)
     #generated = model.generate(context, 500)
     #print(decode(generated[0].tolist()))
+
+
+#bb = CountBasedBigram(vocab_size)
+#bb.train(text)
+#print(bb.counts)

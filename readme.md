@@ -140,15 +140,15 @@ class ModelName(nn.Module):
 
 | Section | Time | Activity |
 |---------|------|----------|
-| Setup & Intro | 15 min | Installation, overview |
-| Count-based | 30 min | Bigram/trigram statistics |
-| Neural N-grams | 45 min | Gradient descent versions |
-| **Break** | 15 min | ☕ |
-| MLP | 60 min | Fixed-context neural model |
-| RNN/LSTM | 60 min | Sequential processing |
-| **Break** | 15 min | ☕ |
-| Transformer | 90 min | Attention mechanism |
-| Wrap-up | 30 min | Comparison, Q&A |
+| Setup & Intro     | 15 min | Installation, overview       |
+| Count-based       | 30 min | Bigram/trigram statistics    |
+| Neural N-grams    | 45 min | Gradient descent versions    |
+| **Break**         | 15 min | ☕                          |
+| MLP               | 60 min | Fixed-context neural model   |
+| RNN/LSTM          | 60 min | Sequential processing        |
+| **Break**         | 15 min | ☕                          |
+| Transformer       | 90 min | Attention mechanism          |
+| Wrap-up           | 30 min | Comparison, Q&A              |
 
 **Total: ~6 hours** (with breaks)
 
