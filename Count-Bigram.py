@@ -36,16 +36,16 @@ class CountBasedBigram:
         # P(next | current) = count(current, next) / sum(count(current, *))
         # Hint: Use self.counts.sum(dim=1, keepdim=True) to get row sums
         # Hint: Add small epsilon to avoid division by zero
-        probablilities = torch.zeros(vocab_size, vocab_size)
-        self.counts.sum(dim=1, keepdim=True)
-        return 
         
+        probablilities = torch.zeros(vocab_size, vocab_size)
+        probablilities = self.counts/self.counts.sum(dim=1, keepdim=True)
+        return probablilities
     
     def generate(self, idx, max_new_tokens):
         """
         Generate tokens by sampling from the count-based distribution.
         Args:
-            idx: (batch, time) starting context
+            idx: batch starting context
             max_new_tokens: number of tokens to generate
         """
         probs = self.get_probabilities()
@@ -53,6 +53,7 @@ class CountBasedBigram:
         for _ in range(max_new_tokens):
             # TODO: Get the last token in the sequence
             # Hint: Use idx[:, -1]
+            idx[:, -1]
             current_token = None
             
             # TODO: Get probability distribution for next token
@@ -129,9 +130,13 @@ if __name__ == "__main__":
     model.train(train_data)
     print("Done!")
     
+    # probablities_tensor = model.get_probabilities()
+    # Debería ser un vector de unos:
+    # print(probablities_tensor.sum(dim=1))
+    
     # TODO: Calculate losses
-    train_loss = model.calculate_loss(train_data[:10000])
-    val_loss = model.calculate_loss(val_data[:10000])
+    #train_loss = model.calculate_loss(train_data[:10000])
+    #val_loss = model.calculate_loss(val_data[:10000])
     #
     #print(f"\nTrain loss: {train_loss:.4f}")
     #print(f"Val loss: {val_loss:.4f}")
@@ -141,8 +146,3 @@ if __name__ == "__main__":
     #context = torch.zeros((1, 1), dtype=torch.long)
     #generated = model.generate(context, 500)
     #print(decode(generated[0].tolist()))
-
-
-#bb = CountBasedBigram(vocab_size)
-#bb.train(text)
-#print(bb.counts)
