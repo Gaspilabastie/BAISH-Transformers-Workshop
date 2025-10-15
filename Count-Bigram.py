@@ -65,7 +65,12 @@ class CountBasedBigram:
         return mean
 
     def decode(self, data):
-        pass
+        char_array = []
+        for number in data:
+            char_array += [itos[number]]
+
+        text = "".join(char_array)
+        return text
 
 
 if __name__ == "__main__":
@@ -91,12 +96,6 @@ if __name__ == "__main__":
     index = int(len(data)*0.8)
     train_data = data[:index]
     val_data = data[index:]
-    """
-    print(f"Vocab size: {vocab_size}")
-    print(f"Training on {len(train_data)} tokens")
-    print(f"Testing on {len(val_data)} tokens")
-    print(f"Train/ Test ratio: {len(train_data)/(len(train_data)+len(val_data))}")
-    """
 
     # Create model
     model = CountBasedBigram(vocab_size)
@@ -116,4 +115,4 @@ if __name__ == "__main__":
     print("\nGenerated text:")
     context = torch.zeros((1, 1), dtype=torch.long)
     generated = model.generate(context, 500)
-    print(decode(generated[0].tolist()))
+    print(model.decode(generated[0].tolist()))
