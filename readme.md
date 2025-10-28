@@ -1,4 +1,4 @@
-# AI Safety: Introduction to Transformer Architecture Workshop
+# AI Safety: Introduction to Transformer Architecture
 
 **A hands-on workshop where I'll build language models from scratch to understand why transformers became the dominant architecture in modern AI.**
 
