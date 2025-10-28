@@ -10,8 +10,7 @@ class NeuralBigram(nn.Module):
     def __init__(self, vocab_size):
         super().__init__()
         self.vocab_size = vocab_size
-        self.logits = torch.zeros(vocab_size, vocab_size)
-        # OR          nn.Parameter(torch.zeros(vocab_size, vocab_size))
+        self.logits = nn.Parameter(torch.zeros(vocab_size, vocab_size))
     
     def forward(self, idx):
         """
@@ -29,7 +28,7 @@ class NeuralBigram(nn.Module):
         """Generate text by sampling from the learned distribution."""
         for _ in range(max_new_tokens):
             # Get last token
-            current = idx[:, -1:]
+            current = idx[:, -1]
             
             # Get predictions
             logits = self.logits[current]
@@ -42,7 +41,7 @@ class NeuralBigram(nn.Module):
             idx_next = torch.multinomial(probs, num_samples=1)
             
             # Append to sequence
-            idx = torch.cat(idx, idx_next)
+            idx = torch.cat([idx, idx_next], dim=1)
         
         return idx
 
@@ -109,33 +108,34 @@ if __name__ == "__main__":
     print(f"Vocab size: {vocab_size}")
     print(f"Training on {len(train_data)} tokens")
     
-    # TODO: Create model
-    model = None
+    # Create model
+    model = NeuralBigram(vocab_size=vocab_size)
     
-    # TODO: Create optimizer
-    optimizer = None
+    # Create optimizer
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     
     # Training loop
     for iter in range(max_iters):
-        # TODO: Get batch
-        xb, yb = None, None
+        # Get batch
+        xb, yb = get_batch(train_data, batch_size=batch_size)
         
-        # TODO: Forward pass
-        logits = None  # (batch, vocab_size)
+        # Forward pass
+        logits = model(xb)  # (batch, vocab_size)
         
-        # TODO: Calculate loss
-        loss = None
+        # Calculate loss
+        loss = F.cross_entropy(logits, yb)
         
-        # TODO: Backward pass
-        # (zero_grad, backward, step)
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
         
         if iter % eval_interval == 0 or iter == max_iters - 1:
             train_loss = estimate_loss(model, train_data, batch_size)
             val_loss = estimate_loss(model, val_data, batch_size)
             print(f"step {iter}: train {train_loss:.4f}, val {val_loss:.4f}")
-    """
+    
     # Generate
     print("\nGenerated text:")
     context = torch.zeros((1, 1), dtype=torch.long)
     print(decode(model.generate(context, 500)[0].tolist()))
-    """
