@@ -138,8 +138,4 @@ if __name__ == "__main__":
     print("\nGenerated text:")
     context = torch.zeros((1, 1), dtype=torch.long)
     print(decode(model.generate(context, 500)[0].tolist()))
-<<<<<<< HEAD
     """
-=======
-    """
->>>>>>> 43f31ccb7e472bf639232d73bc7d61bedf4e4661
