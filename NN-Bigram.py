@@ -9,9 +9,9 @@ class NeuralBigram(nn.Module):
     """
     def __init__(self, vocab_size):
         super().__init__()
-        # TODO: Create embedding table (vocab_size, vocab_size)
-        # This learns the same thing as the count table, but via optimization
-        pass
+        self.vocab_size = vocab_size
+        self.logits = torch.zeros(vocab_size, vocab_size)
+        # OR          nn.Parameter(torch.zeros(vocab_size, vocab_size))
     
     def forward(self, idx):
         """
@@ -20,29 +20,29 @@ class NeuralBigram(nn.Module):
         Returns:
             logits: (batch, vocab_size) predictions for next token
         """
-        # TODO: Handle both (batch,) and (batch, 1) shapes
-        # Hint: if idx.dim() == 2: idx = idx.squeeze(-1)
-        
-        # TODO: Pass idx through embedding table to get logits
-        pass
+        if idx.dim() == 2:
+            idx = idx.squeeze(-1)
+
+        return self.logits[idx]
     
     def generate(self, idx, max_new_tokens):
         """Generate text by sampling from the learned distribution."""
         for _ in range(max_new_tokens):
-            # TODO: Get last token
-            current = None  # idx[:, -1:]
+            # Get last token
+            current = idx[:, -1:]
             
-            # TODO: Get predictions
-            logits = None
+            # Get predictions
+            logits = self.logits[current]
             
-            # TODO: Apply softmax to get probabilities
-            probs = None
+            # Apply softmax to get probabilities
+            softmax = nn.Softmax(dim=1)
+            probs = softmax(logits)
             
-            # TODO: Sample next token
-            idx_next = None
+            # Sample next token
+            idx_next = torch.multinomial(probs, num_samples=1)
             
-            # TODO: Append to sequence
-            idx = None
+            # Append to sequence
+            idx = torch.cat(idx, idx_next)
         
         return idx
 
@@ -133,8 +133,9 @@ if __name__ == "__main__":
             train_loss = estimate_loss(model, train_data, batch_size)
             val_loss = estimate_loss(model, val_data, batch_size)
             print(f"step {iter}: train {train_loss:.4f}, val {val_loss:.4f}")
-    
+    """
     # Generate
     print("\nGenerated text:")
     context = torch.zeros((1, 1), dtype=torch.long)
     print(decode(model.generate(context, 500)[0].tolist()))
+    """
