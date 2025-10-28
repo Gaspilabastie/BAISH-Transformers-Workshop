@@ -52,14 +52,14 @@ def get_batch(data, batch_size):
     Sample random batches from data.
     Returns context (bigram uses 1 token) and targets.
     """
-    # TODO: Sample random indices (not too close to end)
-    ix = None  # torch.randint(len(data) - 1, (batch_size,))
+    # Sample random indices (not too close to end)
+    ix = torch.randint(len(data) - 1, (batch_size,))
     
-    # TODO: Get current tokens as context
-    x = None  # torch.stack([data[i:i+1] for i in ix])
+    # Get current tokens as context
+    x = torch.stack([data[i:i+1] for i in ix])
     
-    # TODO: Get next tokens as targets
-    y = None  # data[ix + 1]
+    # Get next tokens as targets
+    y = data[ix + 1]
     
     return x, y
 
@@ -71,11 +71,11 @@ def estimate_loss(model, data, batch_size, eval_iters=100):
     
     for k in range(eval_iters):
         X, Y = get_batch(data, batch_size)
-        # TODO: Get model predictions
-        logits = None
-        
-        # TODO: Calculate cross-entropy loss
-        loss = None
+        # Get model predictions
+        logits = model(X)
+
+        # Calculate cross-entropy loss
+        loss = F.cross_entropy(logits, Y)
         
         losses[k] = loss.item()
     
