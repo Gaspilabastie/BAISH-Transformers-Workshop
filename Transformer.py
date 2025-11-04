@@ -46,25 +46,26 @@ class MultiHeadAttention(nn.Module):
         Kx = Kx.view(B, num_heads, T, head_dim)
         Vx = Vx.view(B, num_heads, T, head_dim)
 
-        # softmax = nn.Softmax(dim=1)
-        # O = softmax(  )
-        # TODO: Compute attention scores
-        # scores = Q @ K^T / sqrt(head_dim)
-        scores = torch.matmul(Qx, Kx) / math.sqrt(C)
+
+        # Compute attention scores
+        # Shape: B, num_heads, T, T
+        # (Each attention head has dimension TxT)
+        scores = torch.matmul(Qx, Kx.transpose(-2, -1)) / math.sqrt(head_dim)
         
-        # TODO: Apply causal mask (prevent looking at future tokens)
-        # Hint: Use torch.triu to create upper triangular mask
+        # Apply causal mask (prevent looking at future tokens)
+        mask = torch.triu(torch.ones(T,T), diagonal=1).bool()
+        masked_scores = scores.masked_fill(mask, float('-inf'))
+
+        # Apply softmax
+        softmax = nn.Softmax(dim=-1)
+        attention = softmax(masked_scores)
         
+        # Apply attention to values
+        attention_values = attention @ Vx
         
-        # TODO: Apply softmax
-        
-        # TODO: Apply attention to values
-        # output = attention @ V
-        
-        # TODO: Concatenate heads and project
+        # Concatenate heads and project
         # Reshape back to (batch, seq_len, embed_dim)
-        
-        pass
+        output = attention_values.view(B, T, C)
 
 
 class FeedForward(nn.Module):
@@ -73,6 +74,8 @@ class FeedForward(nn.Module):
         super().__init__()
         # TODO: Create two linear layers with ReLU in between
         # Hint: embed_dim -> ff_dim -> embed_dim
+         nn.Linear(embed_dim, ff_dim)
+
         # TODO: Add dropout
         pass
     
