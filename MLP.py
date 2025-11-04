@@ -162,7 +162,10 @@ if __name__ == "__main__":
         loss = F.cross_entropy(logits, yb)
         
         # Backward pass
-        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
         if iter % eval_interval == 0 or iter == max_iters - 1:
             train_loss = estimate_loss(model, train_data, context_length, batch_size)
             val_loss = estimate_loss(model, val_data, context_length, batch_size)

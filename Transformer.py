@@ -14,10 +14,14 @@ class MultiHeadAttention(nn.Module):
         self.head_dim = embed_dim // num_heads
         
         # TODO: Create query, key, value projections
-        # Hint: nn.Linear(embed_dim, embed_dim)
-        
+        self.query = nn.Linear(embed_dim, embed_dim)
+        self.key = nn.Linear(embed_dim, embed_dim)
+        self.value = nn.Linear(embed_dim, embed_dim)
+
         # TODO: Create output projection
-        
+        self.output_projection = nn.Linear(embed_dim, embed_dim)
+
+
     def forward(self, x):
         """
         Args:
@@ -25,19 +29,32 @@ class MultiHeadAttention(nn.Module):
         Returns:
             output: (batch, seq_len, embed_dim)
         """
-        B, T, C = x.shape
-        
+        B, T, C = x.shape # B: batch size, T: sequence length, C: embedding dimension
+        num_heads = self.num_heads
+        head_dim = self.head_dim
+
+
         # TODO: Compute Q, K, V
         # Shape: (batch, seq_len, embed_dim)
-        
+        Qx = self.query(x)
+        Kx = self.key(x)
+        Vx = self.value(x)
+
         # TODO: Split into multiple heads
         # Reshape to (batch, num_heads, seq_len, head_dim)
-        
+        Qx = Qx.view(B, num_heads, T, head_dim)
+        Kx = Kx.view(B, num_heads, T, head_dim)
+        Vx = Vx.view(B, num_heads, T, head_dim)
+
+        # softmax = nn.Softmax(dim=1)
+        # O = softmax(  )
         # TODO: Compute attention scores
         # scores = Q @ K^T / sqrt(head_dim)
+        scores = torch.matmul(Qx, Kx) / math.sqrt(C)
         
         # TODO: Apply causal mask (prevent looking at future tokens)
         # Hint: Use torch.triu to create upper triangular mask
+        
         
         # TODO: Apply softmax
         
