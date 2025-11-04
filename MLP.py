@@ -11,46 +11,37 @@ class MLPLanguageModel(nn.Module):
         super().__init__()
         self.context_length = context_length
         
-        # TODO: Create embedding layer
-        # Maps each token to a learned vector of size embed_dim
-        # Hint: nn.Embedding(vocab_size, embed_dim)
+        # The embedding layer maps each token to a learned vector of size embed_dim
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
         
-        # TODO: Create first hidden layer
-        # Input size: context_length * embed_dim (flattened embeddings)
-        # Output size: hidden_dim
-        # Hint: nn.Linear(in_features, out_features)
+        self.hidden_layer_1 = nn.Linear(context_length*embed_dim, hidden_dim)
         
-        # TODO: Create second hidden layer
-        # Input size: hidden_dim
-        # Output size: hidden_dim
+        self.hidden_layer_2 = nn.Linear(hidden_dim, hidden_dim)
         
-        # TODO: Create output layer
-        # Input size: hidden_dim
-        # Output size: vocab_size (prediction for each possible token)
-    
+        self.output_layer = nn.Linear(hidden_dim, vocab_size)
+
     def forward(self, idx):
-        """
-        Args:
-            idx: (batch, context_length) tensor of token indices
-        Returns:
-            logits: (batch, vocab_size)
-        """
-        # TODO: Get embeddings for context tokens
-        # Shape should be: (batch, context_length, embed_dim)
+        batch_size = idx.shape[0]
+
+        # Get embeddings for context tokens
+        # Shape: (batch, context_length, embed_dim)
+        tokens = self.embedding(idx)
         
-        # TODO: Flatten embeddings
-        # Shape should be: (batch, context_length * embed_dim)
-        # Hint: Use .view(batch_size, -1)
+        # Flatten embeddings
+        # Shape: (batch, context_length * embed_dim)
+        flatted_tokens = tokens.view(batch_size, -1)
+
+        # Pass through first hidden layer + activation
+        first_layer = F.relu( self.hidden_layer_1(flatted_tokens) )
         
-        # TODO: Pass through first hidden layer + activation
-        # Hint: Use F.relu or torch.relu for activation
+        # Pass through second hidden layer + activation
+        second_layer = F.relu( self.hidden_layer_2(first_layer) )
         
-        # TODO: Pass through second hidden layer + activation
-        
-        # TODO: Pass through output layer (no activation - raw logits)
+        # Pass through output layer (no activation - raw logits)
         # Return shape: (batch, vocab_size)
+        logits = self.output_layer(second_layer)
         
-        pass
+        return logits
     
     def generate(self, idx, max_new_tokens):
         """Generate text by sampling from the learned distribution."""
@@ -84,14 +75,14 @@ def get_batch(data, context_length, batch_size):
     Sample random batches from data.
     Returns context windows and targets.
     """
-    # TODO: Sample random starting indices
-    ix = None  # torch.randint(len(data) - context_length, (batch_size,))
+    # Sample random starting indices
+    ix = torch.randint(len(data) - context_length, (batch_size,))
+
+    # Extract context windows
+    x = torch.stack([data[i:i+context_length] for i in ix])
     
-    # TODO: Extract context windows
-    x = None  # torch.stack([data[i:i+context_length] for i in ix])
-    
-    # TODO: Get target tokens (next token after each context)
-    y = None  # data[ix + context_length]
+    # Get target tokens (next token after each context)
+    y = data[ix + context_length]
     
     return x, y
 
@@ -103,11 +94,11 @@ def estimate_loss(model, data, context_length, batch_size, eval_iters=100):
     
     for k in range(eval_iters):
         X, Y = get_batch(data, context_length, batch_size)
-        # TODO: Get model predictions
-        logits = None
+        # Get model predictions
+        logits = model(X)
         
-        # TODO: Calculate loss
-        loss = None
+        # Calculate loss
+        loss = F.cross_entropy(logits, Y)
         
         losses[k] = loss.item()
     
@@ -149,28 +140,28 @@ if __name__ == "__main__":
     print(f"Embedding dim: {embed_dim}")
     print(f"Hidden dim: {hidden_dim}")
     
-    # TODO: Create model
-    model = None
+    # Create model
+    model = MLPLanguageModel(vocab_size, context_length, embed_dim, hidden_dim)
     
-    # TODO: Print parameter count
-    # Hint: sum(p.numel() for p in model.parameters())
+    # Print parameter count
+    print( sum(p.numel() for p in model.parameters()) )
     
-    # TODO: Create optimizer (Adam is good for MLPs)
-    # Hint: torch.optim.Adam(model.parameters(), lr=learning_rate)
-    optimizer = None
+    
+    # Create optimizer (Adam is good for MLPs)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     
     # Training loop
     print("\nTraining...")
     for iter in range(max_iters):
         xb, yb = get_batch(train_data, context_length, batch_size)
         
-        # TODO: Forward pass
-        logits = None  # (batch, vocab_size)
+        # Forward pass
+        logits = model(xb)  # (batch, vocab_size)
         
-        # TODO: Calculate loss
-        loss = None
+        # Calculate loss
+        loss = F.cross_entropy(logits, yb)
         
-        # TODO: Backward pass
+        # Backward pass
         
         if iter % eval_interval == 0 or iter == max_iters - 1:
             train_loss = estimate_loss(model, train_data, context_length, batch_size)
